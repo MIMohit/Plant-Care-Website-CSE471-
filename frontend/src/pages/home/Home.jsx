@@ -31,7 +31,6 @@ const Home = () => {
   const getAllPlants = async () => {
     try {
       const response = await axiosInstance.get("/get-plant");
-      console.log(response.data)
       if (response.data && response.data.plant) {
         setAllPlants(response.data.plant);
       }
