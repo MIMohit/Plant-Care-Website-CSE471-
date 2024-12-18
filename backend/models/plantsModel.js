@@ -7,7 +7,6 @@ const plantSchema = new Schema({
     imageUrl: { type: String, required: true},
     isFavourite: { type: Boolean, default: false},
     price: { type: Number, required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 module.exports = mongoose.model("Plants", plantSchema);

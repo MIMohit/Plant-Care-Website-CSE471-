@@ -13,7 +13,7 @@ const path = require("path");
 const { authenticateToken } = require("./utilities");
 
 const User = require("./models/user.model");
-const Plants = require("./models/plants.model");
+const Plants = require("./models/plantsModel");
 const upload = require("./multer");
 const { error } = require("console");
 const { title } = require("process");
@@ -198,7 +198,6 @@ app.use("/assts", express.static(path.join(__dirname, "assets")) );
 //add plants
 app.post("/add-plant", authenticateToken, async (req,res) => {
     const { title, description, imageUrl, price } = req.body;
-    const { userId } = req.user;
 
     //validate important fields
     if (!title || !description || !imageUrl || !price) {
@@ -211,7 +210,6 @@ app.post("/add-plant", authenticateToken, async (req,res) => {
             description,
             imageUrl,
             price,
-            userId
         });
 
         await plant.save();
@@ -224,12 +222,12 @@ app.post("/add-plant", authenticateToken, async (req,res) => {
 
 //get plants
 app.get("/get-plant", authenticateToken, async (req, res) => {
-    const { userId } = req.user;
-
     try {
-        const plant = await Plants.find({ userId: userId }).sort({ 
+        // const { userId } = req.user;
+        const plant = await Plants.find().sort({ 
             isFavourite: -1,
-         });
+        });
+        console.log(plant.length);
         res.status(200).json({ plant });
     }   catch (error) {
         res.status(500).json({ error: true, message: error.message });
