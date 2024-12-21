@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../components/Navbar';
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance';
 import PlantCard from '../../components/Cards/PlantCard';
+
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css"
+
 
 
 const Home = () => { 
@@ -10,6 +14,9 @@ const Home = () => {
 
   const [userInfo, setUserInfo] = useState(null);
   const [allPlants, setAllPlants] = useState([]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [FilterType, setFilterType] = useState("");
 
   //get user info
   const getUserInfo = async() => {
@@ -46,23 +53,54 @@ const Home = () => {
 
   // handle update favourite
   const updateIsFavourite = async (plantData) => {
-    const descriptionId = descriptionData._id
+    const plantId = plantData._id
     try {
       const response = await axiosInstance.put(
-        "/update-is-favourite/" + descriptionId,
+        "/update-is-favourite/" + plantId,
         {
-          isFavourite: !descriptionData.isFavourite,
+          isFavourite: !plantData.isFavourite,
         }
       );
 
-      if (response.data && response.data.description) {
+      if (response.data && response.data.plant) {
+        toast.success("Updated Successfully");
         getAllPlants();
       }
 
-    }catch(error){
+    } catch(error){
       console.log("An unexpected error occoured. Please try again.");
     }
-  }
+  };
+
+  //Search plant
+  const onSearchPlant = async (query) => {
+    try {
+      console.log("Making search request with query:", query);
+      const response = await axiosInstance.get("/search", {
+        params: { query },
+      });
+
+      console.log("Response from search API:", response.data);
+
+      if (response.data && response.data.Plants) {
+        setFilterType("search");
+        setAllPlants(response.data.Plants);
+      } else {
+        console.log("No plants found in response.");
+        toast.warn("No plants found.");
+      }  
+    } catch (error) {
+      console.log("An unexpected error occured. Please try again.");
+      toast.error("An error occurred while searching. Please try again.");
+    }
+
+  };
+
+  const handleClearSearch = ()=> {
+    setFilterType("");
+    setSearchQuery("");
+    getAllPlants();
+  };
 
   useEffect(() => {
     getAllPlants();
@@ -73,7 +111,13 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar 
+        userInfo={userInfo}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearchPlant={onSearchPlant}
+        handleClearSearch={handleClearSearch}
+      />
       <div className='container mx-auto py-10'>
         <div className='flex gap-7'>
           <div className='flex-l'>
@@ -103,6 +147,7 @@ const Home = () => {
         </div>
       </div>
 
+      <ToastContainer />
     </>
   );
 };

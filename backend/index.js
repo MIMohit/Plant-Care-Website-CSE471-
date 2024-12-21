@@ -338,7 +338,7 @@ app.put("/update-is-favourite/:id", authenticateToken, async (req, res) => {
 //search plant
 app.get("/search", authenticateToken, async (req, res) => {
     const { query } = req.query;
-    const { userId } = req.user;
+    // const { userId } = req.user;
 
     if (!query) {
         return res.status(404).json({ error: true, message: "query is required" });
@@ -346,7 +346,7 @@ app.get("/search", authenticateToken, async (req, res) => {
 
     try {
         const searchResults = await Plants.find({
-            userId: userId,
+            // userId: userId,
             $or: [
                 { title: { $regex: query, $options: "i" }},
                 { description: { $regex: query, $options: "i" }},
