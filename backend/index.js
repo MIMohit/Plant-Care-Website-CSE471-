@@ -17,6 +17,7 @@ const Plants = require("./models/plantsModel");
 const upload = require("./multer");
 const { error } = require("console");
 const { title } = require("process");
+const Blog = require("./models/blogModel");
 
 mongoose.connect(config.connectionSting);
 
@@ -338,7 +339,7 @@ app.put("/update-is-favourite/:id", authenticateToken, async (req, res) => {
 //search plant
 app.get("/search", authenticateToken, async (req, res) => {
     const { query } = req.query;
-    const { userId } = req.user;
+    // const { userId } = req.user;
 
     if (!query) {
         return res.status(404).json({ error: true, message: "query is required" });
@@ -346,7 +347,7 @@ app.get("/search", authenticateToken, async (req, res) => {
 
     try {
         const searchResults = await Plants.find({
-            userId: userId,
+            // userId: userId,
             $or: [
                 { title: { $regex: query, $options: "i" }},
                 { description: { $regex: query, $options: "i" }},
@@ -381,6 +382,98 @@ app.get("/plant-filter", authenticateToken, async (req, res) => {
         res.status(200).json({plants: filteredPlants});
     }   catch (error) {
         res.status(500).json({ error: true, message: error.message });
+    }
+});
+
+// Create a new blog post
+app.post("/create-blog", authenticateToken, async (req, res) => {
+    const { title, content } = req.body;
+    const { userId } = req.user;
+  
+    if (!title || !content) {
+      return res.status(400).json({ error: true, message: "Title and content are required" });
+    }
+  
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: true, message: "User not found" });
+      }
+  
+      const blog = new Blog({
+        title,
+        content,
+        author: user.fullName,
+      });
+  
+      await blog.save();
+      res.status(201).json({ blog, message: "Blog post created successfully" });
+    } catch (error) {
+      res.status(500).json({ error: true, message: error.message });
+    }
+  });
+  
+// Get all blog posts
+app.get("/blogs", async (req, res) => {
+    try {
+      const blogs = await Blog.find().sort({ createdAt: -1 });
+      res.status(200).json({ blogs });
+    } catch (error) {
+      res.status(500).json({ error: true, message: error.message });
+    }
+});
+  
+// Edit a blog post
+app.put("/edit-blog/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    const { userId } = req.user;
+  
+    if (!title || !content) {
+      return res.status(400).json({ error: true, message: "Title and content are required" });
+    }
+  
+    try {
+      const blog = await Blog.findById(id);
+      if (!blog) {
+        return res.status(404).json({ error: true, message: "Blog post not found" });
+      }
+  
+      const user = await User.findById(userId);
+      if (blog.author !== user.fullName) {
+        return res.status(403).json({ error: true, message: "Unauthorized to edit this blog post" });
+      }
+  
+      blog.title = title;
+      blog.content = content;
+      await blog.save();
+  
+      res.status(200).json({ blog, message: "Blog post updated successfully" });
+    } catch (error) {
+      res.status(500).json({ error: true, message: error.message });
+    }
+});
+  
+// Delete a blog post
+app.delete("/delete-blog/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.user;
+  
+    try {
+      const blog = await Blog.findById(id);
+      if (!blog) {
+        return res.status(404).json({ error: true, message: "Blog post not found" });
+      }
+  
+      const user = await User.findById(userId);
+      if (blog.author !== user.fullName) {
+        return res.status(403).json({ error: true, message: "Unauthorized to delete this blog post" });
+      }
+  
+      await blog.deleteOne();
+      res.status(200).json({ message: "Blog post deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: true, message: error.message });
     }
 });
 

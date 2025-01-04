@@ -1,110 +1,55 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react';
 import Navbar from '../../components/Navbar';
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance';
-import PlantCard from '../../components/Cards/PlantCard';
 
-
-const Home = () => { 
+const Home = () => {
   const navigate = useNavigate();
-
-  const [userInfo, setUserInfo] = useState(null);
-  const [allPlants, setAllPlants] = useState([]);
-
-  //get user info
-  const getUserInfo = async() => {
-    try {
-      const response = await axiosInstance.get("/get-user");
-      if (response.data && response.data.user) {
-        setUserInfo(response.data.user);
-      }
-    } catch (error) {
-      if (error.response.status === 401) {
-        //clear if unauthorized
-        localStorage.clear();
-        navigate("/login"); //redirect to login
-      }
-    }
+  
+  const containerStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    height: '100vh',
+    backgroundImage: 'url("http://localhost:8000/uploads/1735542867921.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
   };
 
-  //get all plants
-  const getAllPlants = async () => {
-    try {
-      const response = await axiosInstance.get("/get-plant");
-      if (response.data && response.data.plant) {
-        setAllPlants(response.data.plant);
-      }
-
-    } catch(error){
-      console.log("An unexpected error occoured. Please try again.");
-    }
+  const contentStyle = {
+    color: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: '20px',
+    borderRadius: '10px',
   };
 
+  const titleStyle = {
+    fontSize: '3rem',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+  };
 
-  //handle plant description
-  const handleViewDescription = (data) => {}
-
-  // handle update favourite
-  const updateIsFavourite = async (plantData) => {
-    const descriptionId = descriptionData._id
-    try {
-      const response = await axiosInstance.put(
-        "/update-is-favourite/" + descriptionId,
-        {
-          isFavourite: !descriptionData.isFavourite,
-        }
-      );
-
-      if (response.data && response.data.description) {
-        getAllPlants();
-      }
-
-    }catch(error){
-      console.log("An unexpected error occoured. Please try again.");
-    }
-  }
-
-  useEffect(() => {
-    getAllPlants();
-    getUserInfo();
-
-    return () => {};
-  }, []);
+  const descriptionStyle = {
+    fontSize: '1.2rem',
+    lineHeight: '1.6',
+  };
 
   return (
-    <>
-      <Navbar userInfo={userInfo} />
-      <div className='container mx-auto py-10'>
-        <div className='flex gap-7'>
-          <div className='flex-l'>
-            {allPlants.length > 0 ? (
-              <div className='grid grid-cols-2 gap-4'>
-                {allPlants.map((item) => {
-                  return (
-                    <PlantCard
-                      key = {item._id}
-                      imgUrl = {item.imageUrl}
-                      title = {item.title}
-                      description = {item.description}
-                      isFavourite = {item.isFavourite}
-                      price = {item.price}
-                      onClick = {() => handleViewDescription(item)}
-                      onFavouriteClick = {() => updateIsFavourite(item)}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <>Empty Card </>
-            )}
-          </div>
-          
-          <div className='w-[320px]'></div>
-        </div>
+    <div style={containerStyle}>
+      <div style={contentStyle}>
+        <h1 style={titleStyle}>PLANT ME</h1>
+        <p style={descriptionStyle}>
+          Welcome to Plant ME, your ultimate destination for plant care and sales. 
+          Explore a variety of lush, green companions to brighten your home and soul. 
+          We make plant care simple and accessible for everyone. 
+          Let nature thrive in your space with our curated selection of greenery. 
+          Plant joy, plant love—welcome to your green haven.
+        </p>
       </div>
-
-    </>
+    </div>
   );
 };
 
-export default Home
+export default Home;
