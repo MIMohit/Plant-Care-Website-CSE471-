@@ -8,9 +8,13 @@ const PlantCard = ({
     description,
     isFavourite,
     onFavouriteClick,
-    onClick, }) => {
+    onClick, 
+}) => {
     return (
-    <div className='border rounded-lg overflow-hidden bg-white hover:shadow-lg hover:shadow-slate-200 transition-all ease-in-out relative cursor-pointer'>
+    <div 
+        className='border rounded-lg overflow-hidden bg-white hover:shadow-lg hover:shadow-slate-200 transition-all ease-in-out relative cursor-pointer'
+        onClick={onClick}
+    >
         <img
             src= {imgUrl}  
             alt= {title}

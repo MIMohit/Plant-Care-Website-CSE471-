@@ -337,20 +337,20 @@ app.put("/update-is-favourite/:id", authenticateToken, async (req, res) => {
 });
 
 //search plant
-app.get("/search", authenticateToken, async (req, res) => {
-    const { query } = req.query;
+app.get("/search", async (req, res) => {
+    const { searchTerm } = req.query;
     // const { userId } = req.user;
 
-    if (!query) {
-        return res.status(404).json({ error: true, message: "query is required" });
+    if (!searchTerm) {
+        return res.status(404).json({ error: true, message: "Search Term is required" });
     }
 
     try {
         const searchResults = await Plants.find({
             // userId: userId,
             $or: [
-                { title: { $regex: query, $options: "i" }},
-                { description: { $regex: query, $options: "i" }},
+                { title: { $regex: searchTerm, $options: "i" }},
+                { description: { $regex: searchTerm, $options: "i" }},
             ],
         }).sort({ isFavourite: -1 });
 
@@ -369,13 +369,9 @@ app.get("/plant-filter", authenticateToken, async (req, res) => {
     const start = parseFloat(startPrice);
     const end = parseFloat(endPrice);
 
-    if (isNaN(start) || isNaN(end)) {
-        return res.status(400).json({ error: true, message: "startPrice and endPrice must be valid numbers" });
-    }
-
     try {
         const filteredPlants = await Plants.find({
-            userId: userId,
+            // userId: userId,
             price: { $gte: start, $lte: end},
         }).sort({ isFavourite: -1 });
 

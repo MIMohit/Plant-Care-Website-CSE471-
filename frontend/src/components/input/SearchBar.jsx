@@ -1,31 +1,44 @@
-import React from 'react';
-import { FaMagnifyingGlass } from 'react-icons/fa6';
-import { IoMdClose } from "react-icons/io";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 
-const SearchBar = ({value, onChange, handleSearch,  onClearSearch}) => {
+const SearchBar = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleInputChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      onSearch(searchTerm);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
-    <div className='w-80 flex items-center px-4 bg-slate-100 rounded-md'>
-        <input
-            type = "text"
-            placeholder='Search'
-            className='w-full text-xs bg-transparent py-[11px] outline-none'
-            value={value}
-            onChange={onChange}
-        />
-
-        {value && (
-            <IoMdClose 
-                className='text-xl text-slate-500 cursor-pointer hover:text-black mr-3' 
-                onClick={onClearSearch} 
-            />
-        )}
-
-        <FaMagnifyingGlass 
-            className='text-slate-400 cursor-pointer hover:text-black' 
-            onClick={handleSearch} 
-        />
+    <div className="search-bar">
+      <input
+        type="text"
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={handleInputChange}
+        onKeyPress={handleKeyPress}
+        className="search-input"
+      />
+      <button onClick={handleSearch} className="search-button">
+        Search
+      </button>
     </div>
   );
 };
 
-export default SearchBar
+SearchBar.propTypes = {
+  onSearch: PropTypes.func.isRequired,
+};
+
+export default SearchBar;

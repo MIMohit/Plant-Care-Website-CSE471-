@@ -18,12 +18,6 @@ const App = () => {
   const [filterType, setFilterType] = useState("");
   const isToken = localStorage.getItem("token");
 
-  const handleClearSearch = ()=> {
-    setFilterType("");
-    setSearchQuery("");
-  };
-  
-
 
   //get user info
   const getUserInfo = async() => {
@@ -54,7 +48,6 @@ const App = () => {
         userInfo={userInfo}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        handleClearSearch={handleClearSearch}
         isToken={isToken}
       />
     </Router>
@@ -62,9 +55,14 @@ const App = () => {
   );
 };
 
-const AppContent = ({ userInfo, searchQuery, setSearchQuery, handleClearSearch, isToken }) => {
+const AppContent = ({ userInfo, searchQuery, setSearchQuery, onSearchPlant, handleClearSearch, isToken }) => {
   const location = useLocation(); // Get current route
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const [searchTerm, setSearchTerm] = useState(""); // Shared state for search term
+
+  const handleSearch = (query) => {
+    setSearchTerm(query); // Update state
+  };
 
   return (
     <div>
@@ -74,7 +72,8 @@ const AppContent = ({ userInfo, searchQuery, setSearchQuery, handleClearSearch, 
           userInfo={userInfo}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          handleClearSearch={handleClearSearch}
+          onSearch={handleSearch}
+          onSearchPlant={onSearchPlant}
         />
       )}
       {/* Add a key to Routes to force re-render */}
@@ -120,6 +119,7 @@ const AppContent = ({ userInfo, searchQuery, setSearchQuery, handleClearSearch, 
               userInfo={userInfo}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
+              searchTerm={searchTerm}
               handleClearSearch={handleClearSearch}
             />
           }
